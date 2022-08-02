@@ -9,11 +9,11 @@ from mock import patch, Mock
 import io
 
 class BytesArg(object):
-    def __eq__(a, b):
+    def __eq__(self, b):
         return isinstance(b, io.BytesIO)
 
 class MultiPartArg(object):
-    def __eq__(a, b):
+    def __eq__(self, b):
         return "multipart/form-data" in b["Content-Type"]
 
 class TestSampleAction:

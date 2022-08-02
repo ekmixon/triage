@@ -155,10 +155,14 @@ class Client:
             response (dict):
                 {}, empty dict
         """
-        return self._req_json('POST', '/v0/samples/%s/profile' % sample_id, {
-            'auto': False,
-            'profiles': profiles,
-        })
+        return self._req_json(
+            'POST',
+            f'/v0/samples/{sample_id}/profile',
+            {
+                'auto': False,
+                'profiles': profiles,
+            },
+        )
 
     def set_sample_profile_automatically(self, sample_id, pick=[]):
         """
@@ -177,10 +181,14 @@ class Client:
             response (dict):
                 {}, empty dict
         """
-        return self._req_json('POST', '/v0/samples/%s/profile' % sample_id, {
-            'auto': True,
-            'pick': pick,
-        })
+        return self._req_json(
+            'POST',
+            f'/v0/samples/{sample_id}/profile',
+            {
+                'auto': True,
+                'pick': pick,
+            },
+        )
 
     def owned_samples(self, max=20):
         """
@@ -495,7 +503,7 @@ class Client:
         Returns:
             yield of dict events
         """
-        events = self._new_request("GET", "/v0/samples/"+sample_id+"/events")
+        events = self._new_request("GET", f"/v0/samples/{sample_id}/events")
         with Session() as s:
             res = s.send(events.prepare(), stream=True)
             for line in res.iter_lines():
@@ -541,4 +549,4 @@ def encode_multipart_formdata(fields):
     body.write('--{0}--\r\n'.format(boundary).encode('utf-8'))
     body.seek(0)
 
-    return body, "multipart/form-data; boundary=" + boundary
+    return body, f"multipart/form-data; boundary={boundary}"

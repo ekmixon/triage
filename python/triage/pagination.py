@@ -16,11 +16,7 @@ class Paginator:
         return self
 
     def _fetch_next_page(self):
-        if '?' in self._path:
-            path = self._path + '&'
-        else:
-            path = self._path + '?'
-
+        path = f'{self._path}&' if '?' in self._path else f'{self._path}?'
         if self._max < self._limit:
             self._limit = self._max
 

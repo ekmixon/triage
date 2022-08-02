@@ -32,7 +32,7 @@ def client_from_env():
             url, token = line.split(" ")
             return Client(token, root_url=url)
 
-    print("%s is not formatted correctly" % tokenfile)
+    print(f"{tokenfile} is not formatted correctly")
     sys.exit()
 
 @click.group()
@@ -50,7 +50,7 @@ def authenticate(token, url):
         return
 
     with open(token_file(), "w") as f:
-        f.write("%s %s" % (url, token))
+        f.write(f"{url} {token}")
 
 def prompt_select_files(static):
     print("Please select the files from the archive to analyize/")
@@ -69,10 +69,7 @@ def prompt_select_files(static):
         } for i in selection], False
 
 def prompt_select_profiles_for_files(profiles, pick):
-    f = None
-    if len(pick) > 1:
-        f = lambda x : len(x) > 0
-
+    f = (lambda x : len(x) > 0) if len(pick) > 1 else None
     rt = []
     for i in pick:
         print("Please select the profiles to use for", i["name"])
@@ -81,11 +78,11 @@ def prompt_select_profiles_for_files(profiles, pick):
             key="name",
             f=f
         )
-        for choice in selection:
-            rt.append({
-                "profile": profiles[choice]["id"],
-                "pick": i["path"]
-            })
+        rt.extend(
+            {"profile": profiles[choice]["id"], "pick": i["path"]}
+            for choice in selection
+        )
+
     return rt
 
 def prompt_select_profile(c, sample):
@@ -118,8 +115,8 @@ def prompt_select_profile(c, sample):
 
     # Fetch profiles before determining whether we should use automatic
     #  profiles. If no profiles are available, fall back to automatic profiles.
-    profiles = [x for x in c.profiles()]
-    default_selection = (len(profiles) == 0)
+    profiles = list(c.profiles())
+    default_selection = not profiles
 
     profile_selections = []
     if not default_selection:
@@ -175,12 +172,12 @@ def submit(target, interactive, profile):
         return
 
     print("Sample submitted")
-    print("  ID:       %s" % r["id"])
-    print("  Status:   %s" % r["status"])
+    print(f'  ID:       {r["id"]}')
+    print(f'  Status:   {r["status"]}')
     if f:
-        print("  Filename: %s" % r["filename"])
+        print(f'  Filename: {r["filename"]}')
     else:
-        print("  URL:      %s" % r["url"])
+        print(f'  URL:      {r["url"]}')
 
     if interactive:
         time.sleep(2)
@@ -264,7 +261,7 @@ def archive(sample, format, output):
         with open(output, "wb") as wf:
             wf.write(r)
     else:
-        with open("%s.%s" % (sample, format), "wb") as wf:
+        with open(f"{sample}.{format}", "wb") as wf:
             wf.write(r)
 
 
@@ -304,18 +301,14 @@ def report(sample, static, task):
         print("~Static Report~")
         r = c.static_report(sample)
         for f in r["files"]:
-            print("%s %s" % (
-                f["filename"],
-                "(selected)" if f["selected"] else "")
-            )
+            print(f'{f["filename"]} {"(selected)" if f["selected"] else ""}')
             print("  md5:", f["md5"])
             print("  tags:", f.get("tags", []))
             print("  kind:", f["kind"])
     elif task:
-        print("~%s Report~" % task)
+        print(f"~{task} Report~")
         r = c.task_report(sample, task)
-        err = r.get("errors")
-        if err:
+        if err := r.get("errors"):
             print(err)
             return
         print(r["task"]["target"])

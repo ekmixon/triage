@@ -7,14 +7,11 @@ def prompt_select_options(options, key, f=None):
     print("\nMake your selection by entering the numbers as listed below "
     "separated by spaces and finish with enter.\n")
 
-    i = 0
-    for option in options:
+    for i, option in enumerate(options):
         em = " "
         if option.get("selected"):
             em = ">"
         print(em, i, option[key])
-        i += 1
-
     selection = []
     choices = input("> ")
     for choice in choices.split(" "):
@@ -36,11 +33,10 @@ def prompt_select_options(options, key, f=None):
 
         selection.append(choice)
 
-    if f:
-        if not f(selection):
-            return prompt_select_options(options, key,  f)
+    if f and not f(selection):
+        return prompt_select_options(options, key,  f)
 
-    if len(selection) > 0:
+    if selection:
         print("You selected:")
     for choice in selection:
         print(" ", options[choice][key])
